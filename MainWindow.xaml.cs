@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using VRCDeskDive.Core;
+using Localization = VRCDeskDive.Core.Localization;
 
 namespace VRCDeskDive;
 
@@ -32,11 +33,13 @@ public partial class MainWindow : Window
         Resources["AccentTintBrush"] = _accentTint;
 
         InitializeComponent();
+        Language = System.Windows.Markup.XmlLanguage.GetLanguage(Localization.Language);
         // 画面に収まらないときは ScrollViewer でスクロールさせる
         MaxHeight = SystemParameters.WorkArea.Height;
         VersionText.Text = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
 
         var s = controller.Settings;
+        LanguageCombo.SelectedValue = Localization.Language;
         SensitivitySlider.Value = s.MouseSensitivity;
         ClickLookCheck.IsChecked = s.ClickToMouseLook;
         ReleaseKeyCombo.ItemsSource = InputBridge.MouseLookReleaseKeys.Keys;
@@ -60,6 +63,7 @@ public partial class MainWindow : Window
         UpdateMode();
         UpdateVrcStatus();
         UpdateDriverStatus();
+        Localization.Changed += UpdateLanguage;
 
         SourceInitialized += (_, _) => WindowEffects.EnableBlurBehind(this);
         SizeChanged += (_, _) => UpdateShape();
@@ -137,7 +141,7 @@ public partial class MainWindow : Window
         Width = compact ? 340 : 880;
 
         CompactButton.Content = compact ? "" : "";
-        CompactButton.ToolTip = compact ? "元の大きさに戻す" : "縮小表示";
+        CompactButton.SetResourceReference(ToolTipProperty, compact ? "RestoreView" : "CompactView");
         if (_initialized) UpdateDriverStatus();
     }
 
@@ -158,17 +162,15 @@ public partial class MainWindow : Window
         AnimateStop(_accentTint.GradientStops[1], WithAlpha(end, 0x0A));
         ModeGlow.BeginAnimation(DropShadowEffect.ColorProperty, new ColorAnimation(end, AccentDuration));
 
-        ModeLabel.Text = mouseLook ? "MOUSE LOOK" : desktop ? "DESKTOP MODE" : "VR MODE";
-        ModeText.Text = mouseLook && _compact ? "マウスルック中" : desktop ? "デスクトップ操作" : "VR操作";
+        ModeLabel.Text = Localization.Text(mouseLook ? "MouseLookHeading" : desktop ? "DesktopHeading" : "VrHeading");
+        ModeText.Text = Localization.Text(mouseLook && _compact ? "MouseLookActive" : desktop ? "DesktopMode" : "VrMode");
         ModeHint.Text = mouseLook
-            ? $"マウスルック中（{_controller.Settings.MouseLookReleaseKey}で解除）"
-            : desktop
-                ? "HMDを外して、キーボードとマウスで操作できます"
-                : "いつもどおりHMDとコントローラーで操作します";
+            ? Localization.Format("MouseLookHint", _controller.Settings.MouseLookReleaseKey)
+            : Localization.Text(desktop ? "DesktopHint" : "VrHint");
 
         // ボタンは切り替え先のモードの色で光らせる
         var targetGradient = (Brush)FindResource(desktop ? "VrGradient" : "DesktopGradient");
-        ToggleButton.Content = desktop ? "VR操作に戻す" : "デスクトップ操作に切り替え";
+        ToggleButton.Content = Localization.Text(desktop ? "SwitchToVr" : "SwitchToDesktop");
         ToggleButton.Background = targetGradient;
         ToggleButton.Effect = new DropShadowEffect
         {
@@ -178,7 +180,7 @@ public partial class MainWindow : Window
             Opacity = 0.55,
         };
 
-        Title = desktop ? "VRCDeskDive - デスクトップ操作中" : "VRCDeskDive";
+        Title = desktop ? Localization.Text("DesktopTitle") : "VRCDeskDive";
         LookPad.IsEnabled = desktop;
     }
 
@@ -202,19 +204,19 @@ public partial class MainWindow : Window
     {
         var status = _controller.Input.Driver.Status;
         var steamVr = status != DriverStatus.SteamVrNotRunning;
-        SteamVrText.Text = steamVr ? "接続" : "未起動";
+        SteamVrText.Text = Localization.Text(steamVr ? "Connected" : "NotRunning");
         SetDot(SteamVrDot, steamVr ? "OkBrush" : "IdleBrush");
 
         var (text, brush) = status switch
         {
-            DriverStatus.Connected => ("接続", "OkBrush"),
-            DriverStatus.WaitingForHmd => ("接続（HMDの姿勢待ち）", "WarnBrush"),
-            DriverStatus.HookFailed => ("エラー（HMDの姿勢を取得できません）", "ErrorBrush"),
-            DriverStatus.NotLoaded => ("未接続", "WarnBrush"),
-            DriverStatus.VersionMismatch => ("更新あり（SteamVRの再起動が必要）", "WarnBrush"),
-            _ => ("未接続", "IdleBrush"),
+            DriverStatus.Connected => ("Connected", "OkBrush"),
+            DriverStatus.WaitingForHmd => ("WaitingForHmd", "WarnBrush"),
+            DriverStatus.HookFailed => ("HookFailed", "ErrorBrush"),
+            DriverStatus.NotLoaded => ("Disconnected", "WarnBrush"),
+            DriverStatus.VersionMismatch => ("VersionMismatch", "WarnBrush"),
+            _ => ("Disconnected", "IdleBrush"),
         };
-        DriverText.Text = text;
+        DriverText.Text = Localization.Text(text);
         SetDot(DriverDot, brush);
         SetDot(CompactDriverDot, brush);
 
@@ -224,13 +226,13 @@ public partial class MainWindow : Window
 
         string? hint = null;
         if (!DriverInstaller.IsBundled)
-            hint = "ドライバーがビルドされていません（driver\\build.ps1）。視点の操作と水平固定は使えません。";
+            hint = Localization.Text("DriverNotBuilt");
         else if (!registered)
-            hint = "「SteamVRに登録」を押してから、SteamVRを再起動してください。";
+            hint = Localization.Text("DriverNotRegistered");
         else if (status == DriverStatus.NotLoaded)
-            hint = "登録済みです。SteamVRを再起動すると読み込まれます。";
+            hint = Localization.Text("DriverNotLoaded");
         else if (status == DriverStatus.VersionMismatch)
-            hint = "古いドライバーが読み込まれています。SteamVRを再起動すると新しいドライバーになります。";
+            hint = Localization.Text("DriverOutdated");
         DriverHint.Text = hint ?? string.Empty;
         DriverHint.Visibility = hint is null ? Visibility.Collapsed : Visibility.Visible;
     }
@@ -239,11 +241,11 @@ public partial class MainWindow : Window
     {
         if (!DriverInstaller.Register())
         {
-            MessageBox.Show(this, "ドライバーを登録できませんでした。SteamVRがインストールされているか確認してください。", "VRCDeskDive");
+            MessageBox.Show(this, Localization.Text("RegisterFailed"), "VRCDeskDive");
             return;
         }
         UpdateDriverStatus();
-        MessageBox.Show(this, "SteamVRにドライバーを登録しました。SteamVRを再起動すると有効になります。", "VRCDeskDive");
+        MessageBox.Show(this, Localization.Text("RegisterSucceeded"), "VRCDeskDive");
     }
 
     private void UpdateVrcStatus()
@@ -251,11 +253,11 @@ public partial class MainWindow : Window
         var vrc = _controller.Vrc;
         var (text, brush) = (vrc.IsRunning, vrc.IsForeground) switch
         {
-            (true, true) => ("起動中（前面）", "OkBrush"),
-            (true, false) => ("起動中", "WarnBrush"),
-            _ => ("未検出", "IdleBrush"),
+            (true, true) => ("RunningForeground", "OkBrush"),
+            (true, false) => ("Running", "WarnBrush"),
+            _ => ("NotDetected", "IdleBrush"),
         };
-        VrcText.Text = text;
+        VrcText.Text = Localization.Text(text);
         SetDot(VrcDot, brush);
         SetDot(CompactVrcDot, brush);
     }
@@ -263,6 +265,22 @@ public partial class MainWindow : Window
     private void ToggleButton_Click(object sender, RoutedEventArgs e) => _controller.Toggle();
 
     // --- 設定 ---
+    private void LanguageCombo_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (!_initialized || LanguageCombo.SelectedValue is not string language) return;
+        _controller.Settings.Language = language;
+        _controller.Settings.Save();
+        Localization.Apply(language);
+    }
+
+    private void UpdateLanguage()
+    {
+        UpdateMode();
+        UpdateVrcStatus();
+        UpdateDriverStatus();
+        UpdateSliderLabel();
+    }
+
 
     private void SensitivitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
@@ -271,7 +289,7 @@ public partial class MainWindow : Window
         UpdateSliderLabel();
     }
 
-    private void UpdateSliderLabel() => SensitivityText.Text = SensitivitySlider.Value.ToString("0.0");
+    private void UpdateSliderLabel() => SensitivityText.Text = SensitivitySlider.Value.ToString("0.0", Localization.Culture);
 
     private void ClickLookCheck_Changed(object sender, RoutedEventArgs e)
     {
@@ -295,5 +313,10 @@ public partial class MainWindow : Window
     {
         base.OnClosing(e);
         _controller.Settings.Save();
+    }
+    protected override void OnClosed(EventArgs e)
+    {
+        Localization.Changed -= UpdateLanguage;
+        base.OnClosed(e);
     }
 }

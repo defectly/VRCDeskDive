@@ -54,7 +54,7 @@ public sealed class OscClient : IDisposable
                 float => 'f',
                 string => 's',
                 bool b => b ? 'T' : 'F',
-                _ => throw new ArgumentException($"未対応の OSC 引数型: {arg.GetType()}"),
+                _ => throw new ArgumentException(Localization.Format("UnsupportedOscType", arg.GetType())),
             });
         }
         WriteString(ms, tags.ToString());

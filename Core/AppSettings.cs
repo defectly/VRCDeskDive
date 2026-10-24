@@ -6,6 +6,7 @@ namespace VRCDeskDive.Core;
 
 public sealed class AppSettings
 {
+    public string? Language { get; set; }
     /// <summary>マウス感度（左右・上下共通）。</summary>
     public double MouseSensitivity { get; set; } = 1.0;
     /// <summary>VRChat を左クリックするとマウスルック（MouseLookReleaseKey で解除）。</summary>

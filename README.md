@@ -1,96 +1,118 @@
 # VRCDeskDive
 
-VRChat を落とさずに、VR 操作とデスクトップ操作を切り替えるツールです。
+**English** | [日本語](README.ja.md)
 
-VRChat は VR モードのまま、HMD を外したらキーボードとマウスで操作できるようにします。
-移動やジャンプなどは VRChat の OSC 入力で、視点（上下左右）は SteamVR ドライバーで HMD の姿勢を書き換えて動かします。
+Switch between VR controls and desktop controls without closing VRChat.
 
-## 動作環境
+VRChat stays in VR mode, but you can use your keyboard and mouse after taking off your headset. Movement, jumping, and other actions use VRChat's OSC input; looking around uses a SteamVR driver that overrides the headset's pose.
 
-- Windows 10 / 11（Windows 10 + Quest 3 + Steam Link で動作確認）
-- [.NET 10 デスクトップランタイム](https://dotnet.microsoft.com/download/dotnet/10.0)
-- SteamVR
-- VRChat の OSC を有効にしておくこと（アクションメニュー → オプション → OSC）
+This is the English/Japanese localization [fork](https://github.com/defectly/VRCDeskDive) of [gurenchang/VRCDeskDive](https://github.com/gurenchang/VRCDeskDive). The original project and its MIT copyright notice are retained.
 
-HMD を外すとスリープしてしまう場合は、近接センサーをテープなどで塞いでください。
+## Requirements
 
-## ビルドと起動
+- Windows 10 / 11. The original project reports testing with Windows 10 + Quest 3 + Steam Link.
+- [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) to run the application.
+- SteamVR.
+- OSC enabled in VRChat: Action Menu → Options → OSC.
 
-SteamVR ドライバー（C）を先にビルドしてから、アプリをビルドします。
-ドライバーのビルドには Visual Studio Build Tools か [zig](https://ziglang.org/)（`tools\zig\` に置けば自動で使われます）が必要です。
+If your headset goes to sleep when you take it off, the original project's workaround is to cover its proximity sensor with tape or a similar material.
 
-```
+## Build and run
+
+To build from source, install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), not just the runtime. The native SteamVR driver also requires Visual Studio / Visual Studio Build Tools with the C++ x64 tools, or [zig](https://ziglang.org/). The build script tries Visual Studio first, then `zig` on `PATH`, then `tools\zig\zig.exe`.
+
+Build the SteamVR driver (C) first, then the application. Run these commands in PowerShell from the repository root:
+
+```powershell
 powershell -ExecutionPolicy Bypass -File driver\build.ps1
 dotnet build -c Release
-bin\Release\net10.0-windows\VRCDeskDive.exe
+.\bin\Release\net10.0-windows\VRCDeskDive.exe
 ```
 
-初回は画面の「SteamVRに登録」を押してから SteamVR を再起動してください。
+On the first run, use the button to register the driver with SteamVR, then restart SteamVR.
 
-- 登録されるのはビルド先のフォルダ（`bin\Release\net10.0-windows\driver\vrcdeskdive`）です。フォルダを移動したら登録し直してください。
-- SteamVR の起動中はドライバーの DLL が使用中になるので、ドライバーを作り直すときは SteamVR を終了してください。
+- The registered folder is the copy in the application output directory: `bin\Release\net10.0-windows\driver\vrcdeskdive`. Register it again if you move that folder.
+- Keep the application and its `driver` subfolder together; copying only the `.exe` does not include the driver.
+- Close SteamVR before rebuilding the driver, because it keeps the driver's DLL in use.
 
-## 使い方
+## Language
 
-メインウィンドウのボタンで「VR 操作」と「デスクトップ操作」を切り替えます。
-HMD を着けたままデスクトップ操作に切り替えてから外すと、その時の視点の位置と向きのまま操作を続けられます。
+The application supports **English** and **日本語**. Choose either language in the settings language selector. Your choice is saved immediately and applies without restarting, including the main window, status messages, look pad, and an already-open chat window.
 
-- タイトルバーのボタンで、最前面に固定・縮小表示を切り替えられます（次回起動時も引き継がれます）。
-- ウィンドウを閉じるとアプリが終了します。
+The saved setting is `Language` in `%APPDATA%\VRCDeskDive\settings.json`, with the value `"en"` or `"ja"`. If it is unset or unsupported, a Japanese system language selects Japanese; all other system languages select English. Existing settings files continue to work.
 
-### デスクトップ操作中の操作
+The English and Japanese READMEs describe the same setup and controls. This fork adds persistent language selection and complete English interface text while retaining Japanese; build-script messages and diagnostic logs are in English.
 
-VRChat かこのツールのウィンドウが前面にあるときだけ効きます。
+## Usage
 
-| 操作 | 動作 |
+Use the main window's button to switch between VR controls and desktop controls. Switch to desktop controls while still wearing the headset, then take it off to continue from the same head position and heading.
+
+- Title-bar buttons toggle always-on-top and compact mode; these choices are remembered for the next launch.
+- Closing the window exits the application.
+
+### Desktop controls
+
+Keyboard controls and mouse-look activation work only while VRChat or this tool's window is in the foreground. The tool's look pad can also control the view directly.
+
+| Control | Action |
 | --- | --- |
-| W A S D | 移動 |
-| 左クリック（VRChat の画面内） | マウスルック開始（マウスの動きがそのまま視点になる） |
-| Alt（設定で Tab / Ctrl に変更可） | マウスルック解除（VRChat から離れても解除） |
-| 右クリック＋ドラッグ（ツールのパッド上） | スティックのように視点を回す |
-| ホイールクリック | 視点を水平に戻す |
-| Shift | 走る |
-| Space | ジャンプ |
-| V | マイク |
-| Enter | チャットボックスに入力（Enter で送信 / Esc でキャンセル） |
+| W A S D | Move |
+| Left-click inside the VRChat window | Start mouse look: mouse movement directly controls the view |
+| Alt (can be changed to Tab / Ctrl in settings) | Release mouse look; switching away from VRChat also releases it |
+| Right-click and drag on the tool's look pad | Turn the view like an analog stick |
+| Middle mouse button | Level the view |
+| Shift | Run |
+| Space | Jump |
+| V | Microphone |
+| Enter | Open chat-box input; Enter sends and Esc cancels |
 
-Esc はそのまま VRChat に届くので、VRChat のメニューを開けます。
-視点の感度は設定の「マウス感度」で調整できます。
+Outside chat-box input, Esc passes through to VRChat, so it can open VRChat's menu. Adjust mouse-look speed with the mouse sensitivity setting.
 
-## 仕組み
+## How it works and limitations
 
-```
-VRCDeskDive ── OSC (127.0.0.1:9000) ──────────────► VRChat        移動・ジャンプ・走る・マイク・チャット
+```text
+VRCDeskDive ── OSC (127.0.0.1:9000) ──► VRChat: movement, jump, run, microphone, chat
      │
-     └── 共有メモリ ──► SteamVR ドライバー（vrserver 内）  HMD の姿勢を書き換えて視点を動かす
+     └── shared memory ──► SteamVR driver (inside vrserver): override the HMD pose
 ```
 
-- ドライバーは HMD の姿勢だけを書き換えます。プレイスペースには触れません。
-- デスクトップ操作中は、切り替えた時の頭の位置と左右の向きを保ったまま視点を水平にします。HMD を机に置いても視点の高さは変わりません。
-- VR 操作に戻すと書き換えをやめるので、本来の HMD の姿勢に戻ります。
-- アプリが落ちた場合も、ドライバーは 1.5 秒で姿勢の書き換えをやめます。
-- VRChat 本体の改造は行っていません。
+- This is not a separate VRChat desktop session: VRChat remains in VR mode and SteamVR is required for the view override.
+- The driver changes only the headset pose. It does not modify the playspace.
+- In desktop mode, the view is leveled while keeping the head position and heading captured when switching modes. Putting the headset on your desk does not change your view height.
+- Switching back to VR stops the override and restores the real headset pose.
+- If the application crashes, the driver stops overriding the pose after 1.5 seconds.
+- The application does not modify VRChat itself.
 
-## ファイルの場所
+## Troubleshooting
 
-| ファイル | 内容 |
+- **The application does not start:** install the .NET 10 **Desktop** Runtime. Building additionally requires the .NET 10 SDK.
+- **No C compiler is found:** install Visual Studio Build Tools with the C++ x64 tools, or make `zig.exe` available on `PATH` / at `tools\zig\zig.exe`. Build the driver before building the application.
+- **The driver is missing or not connected:** check that the built application has `driver\vrcdeskdive\bin\win64\driver_vrcdeskdive.dll`, register the driver from the application, and restart SteamVR. Register again after moving the application folder. Keep the headset awake and connected.
+- **The driver DLL cannot be overwritten:** close SteamVR before rebuilding it, then rebuild the application to copy the updated driver into its output directory.
+- **Movement or chat does not respond:** enable OSC in VRChat and bring VRChat or the tool to the foreground. The default OSC destination is `127.0.0.1:9000`; `OscHost` and `OscPort` are stored in the settings file.
+- **Mouse look does not start or release as expected:** check the click-to-mouse-look setting and selected release key. Mouse look starts by left-clicking inside VRChat and releases when switching away from it.
+- **Further diagnosis:** inspect `%APPDATA%\VRCDeskDive\debug.log`. Copy it before restarting the application, because each launch replaces it.
+
+## File locations
+
+| File | Contents |
 | --- | --- |
-| `%APPDATA%\VRCDeskDive\settings.json` | 設定 |
-| `%APPDATA%\VRCDeskDive\debug.log` | 不具合調査用のログ（起動ごとに作り直す） |
+| `%APPDATA%\VRCDeskDive\settings.json` | Application settings, including the language preference |
+| `%APPDATA%\VRCDeskDive\debug.log` | Diagnostic log; recreated on each launch |
 
-## ドライバーの登録を外す
+## Unregister the driver
 
-SteamVR を終了してから、次のコマンドを実行します（パスは環境に合わせてください）。
+Close SteamVR, then run the following in PowerShell. Adjust the SteamVR installation path and replace `<build-output>` with the application output directory:
 
+```powershell
+& "C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrpathreg.exe" removedriver "<build-output>\driver\vrcdeskdive"
 ```
-"C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrpathreg.exe" removedriver "<ビルド先>\driver\vrcdeskdive"
-```
 
-## ライセンス
+## License
 
-[MIT License](LICENSE)
+[MIT License](LICENSE). Original copyright: © 2026 gurenchang.
 
-## サードパーティ
+## Third-party components
 
-- [OpenVR SDK](https://github.com/ValveSoftware/openvr)（BSD-3-Clause）: `ThirdParty/OpenVR/`
-- [Rajdhani](https://fonts.google.com/specimen/Rajdhani)（SIL Open Font License 1.1）: `Fonts/`
+- [OpenVR SDK](https://github.com/ValveSoftware/openvr) (BSD-3-Clause): `ThirdParty/OpenVR/`
+- [Rajdhani](https://fonts.google.com/specimen/Rajdhani) (SIL Open Font License 1.1): `Fonts/`

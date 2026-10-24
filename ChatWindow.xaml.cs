@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using VRCDeskDive.Core;
+using Localization = VRCDeskDive.Core.Localization;
 
 namespace VRCDeskDive;
 
@@ -21,6 +22,7 @@ public partial class ChatWindow : Window
         _osc = osc;
         _returnTo = returnTo;
         InitializeComponent();
+        Language = System.Windows.Markup.XmlLanguage.GetLanguage(Localization.Language);
         // メインウィンドウと同じ、角丸＋背景ぼかしの見た目にする
         SourceInitialized += (_, _) => WindowEffects.EnableBlurBehind(this);
         SizeChanged += (_, _) => WindowEffects.ApplyRoundedRegion(this, 16);

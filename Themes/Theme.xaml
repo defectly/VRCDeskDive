@@ -6,9 +6,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ===== フォント ===== -->
-    <!-- 英字の見出し・ロゴは Rajdhani。日本語は Rajdhani に無いので Yu Gothic UI にフォールバックする -->
-    <FontFamily x:Key="DisplayFont">pack://application:,,,/Fonts/#Rajdhani, Yu Gothic UI</FontFamily>
-    <FontFamily x:Key="UiFont">Yu Gothic UI, Segoe UI</FontFamily>
+    <!-- Display headings use Rajdhani with system font fallback for Japanese. -->
+    <FontFamily x:Key="DisplayFont">pack://application:,,,/Fonts/#Rajdhani, Segoe UI, Yu Gothic UI</FontFamily>
+    <FontFamily x:Key="UiFont">Segoe UI, Yu Gothic UI</FontFamily>
     <FontFamily x:Key="IconFont">Segoe MDL2 Assets</FontFamily>
 
     <!-- ===== 色 ===== -->

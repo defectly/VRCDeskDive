@@ -45,11 +45,11 @@
             </Canvas>
 
             <StackPanel x:Name="Hint" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
-                <TextBlock Text="DRAG TO LOOK" HorizontalAlignment="Center" FontFamily="{StaticResource DisplayFont}"
+                <TextBlock Text="{DynamicResource DragHeading}" HorizontalAlignment="Center" FontFamily="{StaticResource DisplayFont}"
                            FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource AccentBrush}"/>
-                <TextBlock x:Name="HintTitle" Text="ここで右クリック＋ドラッグ" FontSize="16" FontWeight="Bold"
+                <TextBlock x:Name="HintTitle" Text="{DynamicResource DragHere}" FontSize="16" FontWeight="Bold"
                            HorizontalAlignment="Center" Foreground="{StaticResource TextBrush}" Margin="0,2,0,0"/>
-                <TextBlock x:Name="HintSub" Text="右クリック＋ドラッグでHMD視点を回転 / ホイール押しで水平に戻す" Margin="16,4,16,0"
+                <TextBlock x:Name="HintSub" Text="{DynamicResource PadInstructions}" Margin="16,4,16,0"
                            HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
                            Foreground="{StaticResource SubTextBrush}"/>
             </StackPanel>

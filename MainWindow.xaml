@@ -53,12 +53,12 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0">
                         <ToggleButton x:Name="TopmostButton" Style="{StaticResource TitleBarToggle}" Content="&#xE718;"
-                                      ToolTip="最前面に固定" Click="TopmostButton_Click"/>
+                                      ToolTip="{DynamicResource PinWindow}" Click="TopmostButton_Click"/>
                         <ToggleButton x:Name="CompactButton" Style="{StaticResource TitleBarToggle}" Content="&#xE73F;"
-                                      ToolTip="縮小表示" Margin="2,0,0,0" Click="CompactButton_Click"/>
-                        <Button Style="{StaticResource TitleBarButton}" Content="&#xE921;" ToolTip="最小化"
+                                      ToolTip="{DynamicResource CompactView}" Margin="2,0,0,0" Click="CompactButton_Click"/>
+                        <Button Style="{StaticResource TitleBarButton}" Content="&#xE921;" ToolTip="{DynamicResource Minimize}"
                                 Margin="2,0,0,0" Click="MinimizeButton_Click"/>
-                        <Button Style="{StaticResource CloseButton}" Content="&#xE8BB;" ToolTip="終了"
+                        <Button Style="{StaticResource CloseButton}" Content="&#xE8BB;" ToolTip="{DynamicResource Exit}"
                                 Margin="2,0,0,0" Click="CloseButton_Click"/>
                     </StackPanel>
                 </Grid>
@@ -74,7 +74,7 @@
 
                         <!-- ===== 左: 切り替えと視点操作（縮小表示ではここだけ） ===== -->
                         <StackPanel Grid.Column="0">
-                            <TextBlock x:Name="Subtitle" Text="VRChatを落とさずに、VR操作とデスクトップ操作を切り替え"
+                            <TextBlock x:Name="Subtitle" Text="{DynamicResource Subtitle}" TextWrapping="Wrap"
                                        Foreground="{StaticResource SubTextBrush}" Margin="2,0,0,14"/>
 
                             <!-- モード -->
@@ -104,7 +104,7 @@
                                     <TextBlock Text="VRChat" FontFamily="{StaticResource DisplayFont}" FontWeight="SemiBold" FontSize="14"
                                                Foreground="{StaticResource SubTextBrush}" Margin="0,0,18,0"/>
                                     <Ellipse x:Name="CompactDriverDot" Width="8" Height="8" Margin="0,0,7,0"/>
-                                    <TextBlock Text="DRIVER" FontFamily="{StaticResource DisplayFont}" FontWeight="SemiBold" FontSize="14"
+                                    <TextBlock Text="{DynamicResource DriverLabel}" FontFamily="{StaticResource DisplayFont}" FontWeight="SemiBold" FontSize="14"
                                                Foreground="{StaticResource SubTextBrush}"/>
                                 </StackPanel>
                             </Border>
@@ -113,7 +113,7 @@
                             <Border x:Name="StatusGrid" Style="{StaticResource GlassCard}" Margin="0,14,0,0">
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource Caption}">
-                                        <Run Text="STATUS"/><Run Text="  接続状態" FontFamily="{StaticResource UiFont}" FontWeight="Normal"
+                                        <Run Text="{DynamicResource StatusHeading}"/><Run Text="{DynamicResource StatusDescription}" FontFamily="{StaticResource UiFont}" FontWeight="Normal"
                                                                  FontSize="12" Foreground="{StaticResource MutedBrush}"/>
                                     </TextBlock>
                                     <Grid>
@@ -138,23 +138,25 @@
                                         <TextBlock Text="VRChat"/>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Ellipse x:Name="VrcDot" Width="9" Height="9" Margin="0,0,9,0"/>
-                                            <TextBlock x:Name="VrcText" Text="未検出" Style="{x:Null}" Foreground="{StaticResource TextBrush}"/>
+                                            <TextBlock x:Name="VrcText" Text="{DynamicResource NotDetected}" Style="{x:Null}" Foreground="{StaticResource TextBrush}"/>
                                         </StackPanel>
 
                                         <TextBlock Grid.Row="1" Text="SteamVR"/>
                                         <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Ellipse x:Name="SteamVrDot" Width="9" Height="9" Margin="0,0,9,0"/>
-                                            <TextBlock x:Name="SteamVrText" Text="未起動" Style="{x:Null}" Foreground="{StaticResource TextBrush}"/>
+                                            <TextBlock x:Name="SteamVrText" Text="{DynamicResource NotRunning}" Style="{x:Null}" Foreground="{StaticResource TextBrush}"/>
                                         </StackPanel>
 
-                                        <TextBlock Grid.Row="2" Text="Driver"/>
-                                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Ellipse x:Name="DriverDot" Width="9" Height="9" Margin="0,0,9,0"/>
-                                            <TextBlock x:Name="DriverText" Text="未接続" Style="{x:Null}" Foreground="{StaticResource TextBrush}"
-                                                       VerticalAlignment="Center"/>
-                                            <Button x:Name="RegisterButton" Content="SteamVRに登録" Style="{StaticResource GhostButton}"
-                                                    Margin="12,0,0,0" Visibility="Collapsed" Click="RegisterButton_Click"/>
-                                        </StackPanel>
+                                        <TextBlock Grid.Row="2" Text="{DynamicResource DriverLabel}"/>
+                                        <DockPanel Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">
+                                            <Ellipse x:Name="DriverDot" DockPanel.Dock="Left" Width="9" Height="9" Margin="0,0,9,0" VerticalAlignment="Top"/>
+                                            <StackPanel>
+                                                <TextBlock x:Name="DriverText" Text="{DynamicResource Disconnected}" TextWrapping="Wrap" Style="{x:Null}"
+                                                           Foreground="{StaticResource TextBrush}"/>
+                                                <Button x:Name="RegisterButton" Content="{DynamicResource RegisterDriver}" Style="{StaticResource GhostButton}"
+                                                        Margin="0,6,0,0" HorizontalAlignment="Left" Visibility="Collapsed" Click="RegisterButton_Click"/>
+                                            </StackPanel>
+                                        </DockPanel>
 
                                         <TextBlock Grid.Row="3" Text="OSC"/>
                                         <TextBlock x:Name="OscText" Grid.Row="3" Grid.Column="1" Style="{x:Null}" VerticalAlignment="Center"
@@ -173,16 +175,24 @@
                             <Border Style="{StaticResource GlassCard}">
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource Caption}">
-                                        <Run Text="SETTINGS"/><Run Text="  設定" FontFamily="{StaticResource UiFont}" FontWeight="Normal"
+                                        <Run Text="{DynamicResource SettingsHeading}"/><Run Text="{DynamicResource SettingsDescription}" FontFamily="{StaticResource UiFont}" FontWeight="Normal"
                                                                    FontSize="12" Foreground="{StaticResource MutedBrush}"/>
                                     </TextBlock>
+                                    <DockPanel Margin="0,0,0,8">
+                                        <ComboBox x:Name="LanguageCombo" DockPanel.Dock="Right" Width="120" Style="{StaticResource ModernComboBox}"
+                                                  SelectedValuePath="Tag" SelectionChanged="LanguageCombo_SelectionChanged">
+                                            <ComboBoxItem Content="English" Tag="en"/>
+                                            <ComboBoxItem Content="日本語" Tag="ja"/>
+                                        </ComboBox>
+                                        <TextBlock Text="{DynamicResource LanguageLabel}" Style="{StaticResource Label}" VerticalAlignment="Center"/>
+                                    </DockPanel>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="44"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Text="マウス感度" Style="{StaticResource Label}"/>
+                                        <TextBlock Text="{DynamicResource Sensitivity}" Style="{StaticResource Label}"/>
                                         <Slider x:Name="SensitivitySlider" Grid.Column="1" Style="{StaticResource ModernSlider}"
                                                 Minimum="0.2" Maximum="3" VerticalAlignment="Center"
                                                 ValueChanged="SensitivitySlider_ValueChanged"/>
@@ -190,17 +200,20 @@
                                                    FontFamily="{StaticResource DisplayFont}" FontWeight="Bold" FontSize="17" Foreground="#93C5FD"/>
                                     </Grid>
                                     <Rectangle Height="1" Fill="{StaticResource DividerBrush}" Margin="0,10,0,8"/>
-                                    <DockPanel>
+                                    <CheckBox x:Name="ClickLookCheck" Style="{StaticResource ToggleSwitch}"
+                                              Checked="ClickLookCheck_Changed" Unchecked="ClickLookCheck_Changed">
+                                        <TextBlock Text="{DynamicResource ClickLook}" TextWrapping="Wrap"/>
+                                    </CheckBox>
+                                    <DockPanel Margin="0,6,0,4">
                                         <ComboBox x:Name="ReleaseKeyCombo" DockPanel.Dock="Right" Width="78" Style="{StaticResource ModernComboBox}"
-                                                  ToolTip="マウスルックを解除するキー（解除したあとも、そのキーはVRChatにそのまま届きます）"
+                                                  ToolTip="{DynamicResource ReleaseKeyTooltip}"
                                                   SelectionChanged="ReleaseKeyCombo_SelectionChanged"/>
-                                        <TextBlock DockPanel.Dock="Right" Text="解除キー" Style="{StaticResource Label}" Margin="0,0,8,0"/>
-                                        <CheckBox x:Name="ClickLookCheck" Style="{StaticResource ToggleSwitch}"
-                                                  Content="VRChatを左クリックでマウスルック"
-                                                  Checked="ClickLookCheck_Changed" Unchecked="ClickLookCheck_Changed"/>
+                                        <TextBlock Text="{DynamicResource ReleaseKeyLabel}" Style="{StaticResource Label}" VerticalAlignment="Center"/>
                                     </DockPanel>
-                                    <CheckBox x:Name="SoundCheck" Style="{StaticResource ToggleSwitch}" Content="切り替え時に音を鳴らす"
-                                              Checked="SoundCheck_Changed" Unchecked="SoundCheck_Changed"/>
+                                    <CheckBox x:Name="SoundCheck" Style="{StaticResource ToggleSwitch}"
+                                              Checked="SoundCheck_Changed" Unchecked="SoundCheck_Changed">
+                                        <TextBlock Text="{DynamicResource PlaySound}" TextWrapping="Wrap"/>
+                                    </CheckBox>
                                 </StackPanel>
                             </Border>
 
@@ -208,7 +221,7 @@
                             <Border Style="{StaticResource GlassCard}" Margin="0,14,0,0">
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource Caption}">
-                                        <Run Text="CONTROLS"/><Run Text="  デスクトップ操作中のキー" FontFamily="{StaticResource UiFont}"
+                                        <Run Text="{DynamicResource ControlsHeading}"/><Run Text="{DynamicResource ControlsDescription}" FontFamily="{StaticResource UiFont}"
                                                                    FontWeight="Normal" FontSize="12" Foreground="{StaticResource MutedBrush}"/>
                                     </TextBlock>
                                     <Grid>
@@ -223,27 +236,28 @@
                                         </Grid.RowDefinitions>
                                         <Grid.Resources>
                                             <Style TargetType="TextBlock">
+                                                <Setter Property="TextWrapping" Value="Wrap"/>
                                                 <Setter Property="VerticalAlignment" Value="Center"/>
                                                 <Setter Property="Foreground" Value="{StaticResource SubTextBrush}"/>
                                             </Style>
                                         </Grid.Resources>
                                         <Border Grid.Row="0" Style="{StaticResource KeyCap}"><TextBlock Text="W A S D" Foreground="{StaticResource TextBrush}"/></Border>
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="移動"/>
-                                        <Border Grid.Row="1" Style="{StaticResource KeyCap}"><TextBlock Text="左クリック" Foreground="{StaticResource TextBrush}"/></Border>
-                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="マウスルック"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{DynamicResource Move}"/>
+                                        <Border Grid.Row="1" Style="{StaticResource KeyCap}"><TextBlock Text="{DynamicResource LeftClick}" Foreground="{StaticResource TextBrush}"/></Border>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{DynamicResource MouseLook}"/>
                                         <Border Grid.Row="2" Style="{StaticResource KeyCap}"><TextBlock x:Name="ReleaseKeyCap" Text="Alt" Foreground="{StaticResource TextBrush}"/></Border>
-                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="マウスルック解除"/>
-                                        <Border Grid.Row="3" Style="{StaticResource KeyCap}"><TextBlock Text="ホイール押し" Foreground="{StaticResource TextBrush}"/></Border>
-                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="水平に戻す"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{DynamicResource ReleaseMouseLook}"/>
+                                        <Border Grid.Row="3" Style="{StaticResource KeyCap}"><TextBlock Text="{DynamicResource MiddleClick}" Foreground="{StaticResource TextBrush}"/></Border>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{DynamicResource ResetPitch}"/>
 
                                         <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource KeyCap}"><TextBlock Text="Shift" Foreground="{StaticResource TextBrush}"/></Border>
-                                        <TextBlock Grid.Row="0" Grid.Column="3" Text="走る"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="3" Text="{DynamicResource Run}"/>
                                         <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource KeyCap}"><TextBlock Text="Space" Foreground="{StaticResource TextBrush}"/></Border>
-                                        <TextBlock Grid.Row="1" Grid.Column="3" Text="ジャンプ"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="3" Text="{DynamicResource Jump}"/>
                                         <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource KeyCap}"><TextBlock Text="V" Foreground="{StaticResource TextBrush}"/></Border>
-                                        <TextBlock Grid.Row="2" Grid.Column="3" Text="マイク"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="3" Text="{DynamicResource Microphone}"/>
                                         <Border Grid.Row="3" Grid.Column="2" Style="{StaticResource KeyCap}"><TextBlock Text="Enter" Foreground="{StaticResource TextBrush}"/></Border>
-                                        <TextBlock Grid.Row="3" Grid.Column="3" Text="チャット入力"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="3" Text="{DynamicResource ChatInput}"/>
                                     </Grid>
                                 </StackPanel>
                             </Border>
@@ -252,15 +266,15 @@
                             <Border Style="{StaticResource GlassCard}" Margin="0,14,0,0">
                                 <StackPanel>
                                     <TextBlock Style="{StaticResource Caption}">
-                                        <Run Text="SETUP"/><Run Text="  使う前に" FontFamily="{StaticResource UiFont}" FontWeight="Normal"
+                                        <Run Text="{DynamicResource SetupHeading}"/><Run Text="{DynamicResource SetupDescription}" FontFamily="{StaticResource UiFont}" FontWeight="Normal"
                                                                 FontSize="12" Foreground="{StaticResource MutedBrush}"/>
                                     </TextBlock>
                                     <TextBlock TextWrapping="Wrap" Foreground="{StaticResource SubTextBrush}" LineHeight="21">
                                         <Run Text="›" Foreground="#60A5FA" FontWeight="Bold"/>
-                                        <Run Text="VRChatのアクションメニュー → オプション → OSC を有効にする"/>
+                                        <Run Text="{DynamicResource EnableOsc}"/>
                                         <LineBreak/>
                                         <Run Text="›" Foreground="#60A5FA" FontWeight="Bold"/>
-                                        <Run Text="視点の操作と水平の固定には、ドライバーをSteamVRに登録してSteamVRを再起動する"/>
+                                        <Run Text="{DynamicResource SetupDriver}"/>
                                     </TextBlock>
                                 </StackPanel>
                             </Border>

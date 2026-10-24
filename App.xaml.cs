@@ -2,6 +2,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
 using VRCDeskDive.Core;
+using Localization = VRCDeskDive.Core.Localization;
 
 namespace VRCDeskDive;
 
@@ -15,16 +16,18 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        var settings = AppSettings.Load();
+        Localization.Apply(settings.Language);
 
         _mutex = new Mutex(true, "VRCDeskDive.SingleInstance", out var created);
         if (!created)
         {
-            MessageBox.Show("VRCDeskDive はすでに起動しています。", "VRCDeskDive");
+            MessageBox.Show(Localization.Text("AlreadyRunning"), "VRCDeskDive");
             Shutdown();
             return;
         }
 
-        _controller = new AppController();
+        _controller = new AppController(settings);
         _main = new MainWindow(_controller);
         _controller.Input.OwnWindow = new WindowInteropHelper(_main).EnsureHandle();
         _controller.Input.ChatRequested += () => Dispatcher.BeginInvoke(OpenChat);

@@ -22,9 +22,9 @@ public sealed class AppController : IDisposable
     /// <summary>モードが変わったとき（UI スレッドから）通知される。</summary>
     public event Action? ModeChanged;
 
-    public AppController()
+    public AppController(AppSettings settings)
     {
-        Settings = AppSettings.Load();
+        Settings = settings;
         Osc = new OscClient(Settings.OscHost, Settings.OscPort);
         Vrc = new VrcWatcher();
         Input = new InputBridge(Osc, Vrc, Settings);

@@ -22,7 +22,7 @@ if ($vs) {
     $objDir = Join-Path $root 'out\obj'
     New-Item -ItemType Directory -Force $objDir | Out-Null
     cmd /c "`"$vcvars`" >nul && cl /nologo /std:c11 /O2 /W3 /LD `"$src`" /Fo`"$objDir\\`" /Fe`"$dll`" /link kernel32.lib"
-    if ($LASTEXITCODE -ne 0) { throw 'MSVC でのビルドに失敗しました' }
+    if ($LASTEXITCODE -ne 0) { throw 'MSVC build failed' }
 }
 else {
     $zig = (Get-Command zig -ErrorAction SilentlyContinue).Source
@@ -30,10 +30,10 @@ else {
         $local = Join-Path $root '..\tools\zig\zig.exe'
         if (Test-Path $local) { $zig = $local }
     }
-    if (-not $zig) { throw 'C コンパイラーが見つかりません（Visual Studio Build Tools か zig が必要です）' }
+    if (-not $zig) { throw 'No C compiler found (Visual Studio Build Tools or zig is required)' }
     & $zig cc -target x86_64-windows-gnu -std=c11 -O2 -shared -o $dll $src -lkernel32
-    if ($LASTEXITCODE -ne 0) { throw 'zig でのビルドに失敗しました' }
+    if ($LASTEXITCODE -ne 0) { throw 'zig build failed' }
     Remove-Item (Join-Path $bin '*.pdb'), (Join-Path $bin '*.lib') -ErrorAction SilentlyContinue
 }
 
-Write-Host "ビルド完了: $dll"
+Write-Host "Build complete: $dll"
